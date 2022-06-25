@@ -11,27 +11,27 @@ fileview1 <- dplyr::tibble(
 )
 
 
-test_that("create_fileview_project_id_filter", {
+test_that("create_fileview_proj_filter", {
 
-  expect_null(create_fileview_project_id_filter())
+  expect_null(create_fileview_proj_filter())
 
   expect_equal(
-    create_fileview_project_id_filter(project_ids_to_keep = "syn12"),
+    create_fileview_proj_filter(project_ids_to_keep = "syn12"),
     "projectId IN ('syn12')"
   )
 
   expect_equal(
-    create_fileview_project_id_filter(project_ids_to_remove = "syn12"),
+    create_fileview_proj_filter(project_ids_to_remove = "syn12"),
     "projectId NOT IN ('syn12')"
   )
 
   expect_equal(
-    create_fileview_project_id_filter(project_ids_to_remove = c("syn11", "syn12")),
+    create_fileview_proj_filter(project_ids_to_remove = c("syn11", "syn12")),
     "projectId NOT IN ('syn11', 'syn12')"
   )
 
   expect_equal(
-    create_fileview_project_id_filter(project_ids_to_remove = list("syn11", "syn12")),
+    create_fileview_proj_filter(project_ids_to_remove = list("syn11", "syn12")),
     "projectId NOT IN ('syn11', 'syn12')"
   )
 })

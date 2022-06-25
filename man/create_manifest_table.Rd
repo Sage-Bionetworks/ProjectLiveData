@@ -4,12 +4,39 @@
 \alias{create_manifest_table}
 \title{Create Manifest Table}
 \usage{
-create_manifest_table(table)
+create_manifest_table(project_manifest_list, synapse_object)
 }
 \arguments{
-\item{table}{A dataframe with columns "manifest_path", "manifest_id" and
-"manifest_entity"}
+\item{project_manifest_list}{A nested list in this form:
+list(
+ "syn10" =  list(
+   list(
+      list("syn1", "dataset1"),
+      list("syn2", "synapse_storage_manifest.csv"),
+      list("Component1", "Component1")
+    ),
+    list(
+      list("syn3", "dataset1"),
+      list("syn4", "synapse_storage_manifest.csv"),
+      list("Component2", "Component2")
+    )
+  ),
+  "syn10" = list(
+    list(
+      list("syn5", "dataset1"),
+      list("syn6", "synapse_storage_manifest.csv"),
+      list("Component3", "Component3")
+    ),
+    list(
+      list("syn7", "dataset1"),
+      list("syn8", "synapse_storage_manifest.csv"),
+      list("Component4", "Component4")
+    )
+  )
+)}
+
+\item{synapse_object}{An object created by create_syn_obj()}
 }
 \description{
-Returns a table with the manifest table as a column
+Create Manifest Table
 }

@@ -26,17 +26,23 @@ project_manifest_lists <- list(project_manifest_list1, project_manifest_list2)
 intermediate_manifest_table1 <- dplyr::tibble(
   "dataset_name" = c("dataset1", "dataset1"),
   "dataset_id" = c("syn101", "syn101"),
-  "manifest_name" = c("synapse_storage_manifest.csv", "synapse_storage_manifest.csv"),
+  "manifest_name" = c(
+    "synapse_storage_manifest.csv", "synapse_storage_manifest.csv"
+  ),
   "manifest_id" = c("syn1", "syn1"),
   "component_label" = c("Component1", "Component1"),
-  "manifest_entity" = list(list("path" = "file.csv"), list("path" = "file.csv")),
+  "manifest_entity" = list(
+    list("path" = "file.csv"), list("path" = "file.csv")
+  ),
   "manifest_path" = c("file.csv", "file.csv")
 )
 
 intermediate_manifest_table2 <- dplyr::tibble(
   "dataset_name" = c("dataset1", "dataset1"),
   "dataset_id" = c("syn101", "syn101"),
-  "manifest_name" = c("synapse_storage_manifest.csv", "synapse_storage_manifest.csv"),
+  "manifest_name" = c(
+    "synapse_storage_manifest.csv", "synapse_storage_manifest.csv"
+  ),
   "manifest_id" = c("syn1", "syn1"),
   "component_label" = c("Component1", "Component1"),
   "manifest_entity" = list(list(), list()),
@@ -46,27 +52,29 @@ intermediate_manifest_table2 <- dplyr::tibble(
 manifest_table <- dplyr::tibble(
   "dataset_name" = c("dataset1", "dataset1"),
   "dataset_id" = c("syn101", "syn101"),
-  "manifest_name" = c("synapse_storage_manifest.csv", "synapse_storage_manifest.csv"),
+  "manifest_name" = c(
+    "synapse_storage_manifest.csv", "synapse_storage_manifest.csv"
+  ),
   "manifest_id" = c("syn1", "syn1"),
   "component_label" = c("Component1", "Component1"),
   "manifest_tbl" = list(dplyr::tibble(), dplyr::tibble())
 )
 
-test_that("create_manifest_table_from_list", {
+test_that("create_manifest_table", {
   mockery::stub(
-    where = create_manifest_table_from_list,
-    what = "create_intermediate_manifest_table",
+    where = create_manifest_table,
+    what = "create_int_manifest_table",
     how = intermediate_manifest_table1
   )
 
   mockery::stub(
-    where = create_manifest_table_from_list,
-    what = "create_manifest_table",
+    where = create_manifest_table,
+    what = "add_manifest_tbl_column",
     how = manifest_table
   )
 
   expect_equal(
-    create_manifest_table_from_list(project_manifest_list1),
+    create_manifest_table(project_manifest_list1, list()),
     list(
       "table" = manifest_table,
       "errors" = NULL
@@ -75,25 +83,27 @@ test_that("create_manifest_table_from_list", {
 
 })
 
-test_that("create_intermediate_manifest_table", {
+test_that("create_int_manifest_table", {
   mockery::stub(
-    where = create_intermediate_manifest_table,
+    where = create_int_manifest_table,
     what = "add_manifest_entity_column",
     how = function(table, synapse_object) {
       dplyr::mutate(
         table,
-        "manifest_entity" = list(list("path" = "file.csv"), list("path" = "file.csv")),
+        "manifest_entity" = list(
+          list("path" = "file.csv"), list("path" = "file.csv")
+        ),
       )
     }
   )
 
   expect_equal(
-    create_intermediate_manifest_table(project_manifest_lists, list()),
+    create_int_manifest_table(project_manifest_lists, list()),
     intermediate_manifest_table1
   )
 
   mockery::stub(
-    where = create_intermediate_manifest_table,
+    where = create_int_manifest_table,
     what = "add_manifest_entity_column",
     how = function(table, synapse_object) {
       dplyr::mutate(
@@ -104,7 +114,7 @@ test_that("create_intermediate_manifest_table", {
   )
 
   expect_equal(
-    create_intermediate_manifest_table(project_manifest_lists, list()),
+    create_int_manifest_table(project_manifest_lists, list()),
     intermediate_manifest_table2
   )
 
@@ -220,18 +230,18 @@ test_that("add_manifest_path_column", {
   )
 })
 
-test_that("create_manifest_table", {
+test_that("add_manifest_tbl_column", {
   mockery::stub(
-    where = create_manifest_table,
+    where = add_manifest_tbl_column,
     what = "readr::read_csv",
     how = dplyr::tibble()
   )
   expect_equal(
-    create_manifest_table(intermediate_manifest_table1),
+    add_manifest_tbl_column(intermediate_manifest_table1),
     manifest_table
   )
   expect_equal(
-    create_manifest_table(intermediate_manifest_table2),
+    add_manifest_tbl_column(intermediate_manifest_table2),
     dplyr::slice(manifest_table, 0)
   )
 })
@@ -245,4 +255,3 @@ test_that("create_synapse_error_list", {
     list("syn1" = list(), "syn1" = list())
   )
 })
-

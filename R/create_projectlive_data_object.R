@@ -24,10 +24,10 @@ create_projectlive_data_object <- function(
     project_ids_to_keep = NULL,
     project_ids_to_remove = NULL,
     fileview_columns = c(),
-    verbose = F,
-    upload_to_synapse = F,
+    verbose = FALSE,
+    upload_to_synapse = FALSE,
     synapse_destination_id = NULL
-  ){
+  ) {
 
   synapse_object <- create_syn_obj(auth_token)
   fileview <- get_fileview_tbl(
@@ -38,27 +38,27 @@ create_projectlive_data_object <- function(
     fileview_columns
   )
 
-  if(is.null(project_ids_to_keep)) {
+  if (is.null(project_ids_to_keep)) {
     project_ids <- get_project_ids_from_fileview(fileview)
   } else {
     project_ids <- project_ids_to_keep
   }
 
-  if(verbose){
+  if (verbose) {
     print("Getting manifests for projects:")
     print(project_ids)
   }
 
-  list_object <- get_project_manifest_list_from_project_ids(
+  list_object <- get_project_manifest_lists(
     project_ids,
     fileview_id,
     auth_token
   )
 
-  table_object <- create_manifest_table_from_list(list_object$list, synapse_object)
+  table_object <- create_manifest_table(list_object$list, synapse_object)
   data_object  <- create_data_object_from_table(table_object$table, fileview)
 
-  if(upload_to_synapse){
+  if (upload_to_synapse) {
     upload_object_to_synapse(
       data_object,
       synapse_destination_id,
@@ -90,10 +90,10 @@ get_fileview_tbl <- function(
     project_ids_to_keep = NULL,
     project_ids_to_remove = NULL,
     columns = c()
-  ){
+  ) {
 
   columns <- create_fileview_column_list(columns)
-  filter <- create_fileview_project_id_filter(
+  filter <- create_fileview_proj_filter(
     project_ids_to_keep, project_ids_to_remove
   )
   get_syn_tbl(
@@ -111,11 +111,11 @@ get_fileview_tbl <- function(
 #'
 #' @param columns A list of columns to include("id", "name" "createdOn" and
 #' "projectId", always included.)
-create_fileview_column_list <- function(columns  = c()){
+create_fileview_column_list <- function(columns  = c()) {
   unique(c("id", "name", "createdOn", "projectId", unlist(columns)))
 }
 
-#' Create Fileview Project ID Filter
+#' Create Fileview Project Filter
 #'
 #' Creates a SQL filter for removing projects that are unwanted in the
 #' filewview such as test projects.
@@ -123,24 +123,25 @@ create_fileview_column_list <- function(columns  = c()){
 #' @param project_ids_to_keep A list of project ids to include
 #' @param project_ids_to_remove A list of project ids to not include,
 #' only used if project_ids_to_keep is NULL
-create_fileview_project_id_filter <- function(
+create_fileview_proj_filter <- function(
     project_ids_to_keep = NULL,
     project_ids_to_remove = NULL
-){
+) {
   filter <- NULL
-  if(!is.null(project_ids_to_keep) || !is.null(project_ids_to_remove)){
-    if(!is.null(project_ids_to_keep)){
+  if (!is.null(project_ids_to_keep) || !is.null(project_ids_to_remove)) {
+    if (!is.null(project_ids_to_keep)) {
       ids <- project_ids_to_keep
-      glue_string <- "projectId IN ({id_string})"
+      string <- "projectId IN"
     } else {
       ids <- project_ids_to_remove
-      glue_string <- "projectId NOT IN ({id_string})"
+      string <- "projectId NOT IN"
     }
     id_string <- ids %>%
       unique() %>%
       stringr::str_c("'", ., "'") %>%
       stringr::str_c(collapse = ", ")
-    filter <-  glue::glue(glue_string)
+    filter <- stringr::str_c(string, " (", id_string, ")"
+    )
   }
   return(filter)
 }
@@ -150,7 +151,7 @@ create_fileview_project_id_filter <- function(
 #' Gets a list of project ids from the fileview, sorted and unique.
 #'
 #' @param fileview A tibble of the Synapse fileview
-get_project_ids_from_fileview <- function(fileview){
+get_project_ids_from_fileview <- function(fileview) {
   fileview %>%
     dplyr::pull("projectId") %>%
     unique() %>%
@@ -162,7 +163,7 @@ upload_object_to_synapse <- function(
     synapse_id,
     synapse_object,
     file_name = "data.RDS"
-){
+) {
   saveRDS(obj, file = file_name)
   store_file_in_synapse(synapse_object, file_name, synapse_id)
 }

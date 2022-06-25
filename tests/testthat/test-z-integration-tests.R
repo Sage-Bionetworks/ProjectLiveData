@@ -1,4 +1,6 @@
-config <- yaml::read_yaml(system.file("config.yaml", package = "ProjectLiveData"))
+config <- yaml::read_yaml(
+  system.file("config.yaml", package = "ProjectLiveData")
+)
 
 expected_object_names <- c(
   "projectlive_data_object",
@@ -10,7 +12,7 @@ test_that("create_projectlive_data_object", {
   obj <- create_projectlive_data_object(
     fileview_id = "syn20446927",
     project_ids_to_keep = "syn20834712",
-    upload_to_synapse = T,
+    upload_to_synapse = TRUE,
     synapse_destination_id = "syn32204059",
     auth_token = config$auth_token
   )

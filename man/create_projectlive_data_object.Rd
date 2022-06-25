@@ -10,8 +10,8 @@ create_projectlive_data_object(
   project_ids_to_keep = NULL,
   project_ids_to_remove = NULL,
   fileview_columns = c(),
-  verbose = F,
-  upload_to_synapse = F,
+  verbose = FALSE,
+  upload_to_synapse = FALSE,
   synapse_destination_id = NULL
 )
 }

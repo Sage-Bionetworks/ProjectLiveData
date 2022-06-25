@@ -8,7 +8,7 @@
 #' @param manifests_table A dataframe, with columns "manifest_tbl", and
 #' "component_label
 #' @param fileview A dataframe with column "id"
-create_data_object_from_table <- function(manifests_table, fileview){
+create_data_object_from_table <- function(manifests_table, fileview) {
   manifest_list <- create_manifest_list(manifests_table, fileview)
   all_files_tbl <- create_all_files_table(fileview, manifest_list)
   c(list("All Files" = all_files_tbl), manifest_list)
@@ -21,11 +21,12 @@ create_data_object_from_table <- function(manifests_table, fileview){
 #' @param manifests_table A dataframe, with columns "manifest_tbl", and
 #' "component_label
 #' @param fileview A dataframe with column "id"
-create_manifest_list <- function(manifests_table, fileview){
+#' @importFrom rlang .data
+create_manifest_list <- function(manifests_table, fileview) {
   manifests_table %>%
     dplyr::group_by(.data$component_label) %>%
     dplyr::summarise("manifest_tbl" = list(.data$manifest_tbl)) %>%
-    tibble::deframe() %>%
+    tibble::deframe(.) %>%
     purrr::map(combine_component_tables, fileview)
 }
 
@@ -35,7 +36,8 @@ create_manifest_list <- function(manifests_table, fileview){
 #'
 #' @param fileview A dataframe with column "id"
 #' @param manifest_list A list of manifests, each with a column "id"
-create_all_files_table <- function(fileview, manifest_list){
+#' @importFrom rlang .data
+create_all_files_table <- function(fileview, manifest_list) {
   file_ids <- manifest_list %>%
     purrr::map(dplyr::pull, "id") %>%
     unlist() %>%
@@ -50,7 +52,7 @@ create_all_files_table <- function(fileview, manifest_list){
 #'
 #' @param manifest_table_list A list of dataframes, with column "entityId"
 #' @param fileview A dataframe with column "id"
-combine_component_tables <- function(manifest_table_list, fileview){
+combine_component_tables <- function(manifest_table_list, fileview) {
   manifest_table_list %>%
     purrr::map(format_manifest) %>%
     dplyr::bind_rows() %>%
@@ -66,6 +68,6 @@ combine_component_tables <- function(manifest_table_list, fileview){
 #' Converts all columsn to strings
 #'
 #' @param manifest A dataframe
-format_manifest <- function(manifest){
+format_manifest <- function(manifest) {
   dplyr::mutate(manifest, dplyr::across(dplyr::everything(), as.character))
 }

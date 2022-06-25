@@ -1,4 +1,4 @@
-#' Get Project Manifest List From Project IDs
+#' Get Project Manifest Lists
 #'
 #' Gets the manifest synapse ids associated with a list of projects, and
 #' separates the results into successes and errors.
@@ -7,12 +7,12 @@
 #'  from.
 #' @param fileview_id A synapse ID for the fileview to use.
 #' @param synapse_token A synapse PAT with download priveledges.
-get_project_manifest_list_from_project_ids <- function(
+get_project_manifest_lists <- function(
     project_ids,
     fileview_id,
     synapse_token
-){
-  manifest_attempts <- map_get_project_manifest_list_from_project_ids(
+) {
+  manifest_attempts <- map_get_project_manifest_list(
     project_ids,
     fileview_id,
     synapse_token
@@ -24,7 +24,7 @@ get_project_manifest_list_from_project_ids <- function(
   manifest_failures <- manifest_attempts %>%
     purrr::keep(., purrr::map_lgl(., ~class(.x) == "try-error"))
 
-  if(length(manifest_failures) == 0) manifest_failures <- NULL
+  if (length(manifest_failures) == 0) manifest_failures <- NULL
 
   return(list(
     "list" = manifest_successes,
@@ -33,7 +33,7 @@ get_project_manifest_list_from_project_ids <- function(
 }
 
 
-#' Map Get Project Manifest List From Project IDs
+#' Map Get Project Manifest List
 #'
 #' Attempts to get the manifest synapse ids associated with a list of projects.
 #'
@@ -41,23 +41,23 @@ get_project_manifest_list_from_project_ids <- function(
 #'  from.
 #' @param fileview_id A synapse ID for the fileview to use.
 #' @param synapse_token A synapse PAT with download priveledges.
-map_get_project_manifest_list_from_project_ids <- function(
+map_get_project_manifest_list <- function(
     project_ids,
     fileview_id,
     synapse_token
-){
+) {
   project_ids %>%
     unlist() %>%
     unique() %>%
     purrr::set_names(.) %>%
-    purrr::map( ~try(get_project_manifest_list_from_project_id(
+    purrr::map(~try(get_project_manifest_list(
       project_id = .x,
       fileview_id = fileview_id,
       synapse_token = synapse_token
     )))
 }
 
-#' Get Project Manifest List From Project ID
+#' Get Project Manifest List
 #'
 #' Attempts to get the manifest synapse ids associated with a project, and
 #' handle the various error cases.
@@ -65,11 +65,11 @@ map_get_project_manifest_list_from_project_ids <- function(
 #' @param project_id A synapse ID for the project to get the manifests from.
 #' @param fileview_id A synapse ID for the fileview to use.
 #' @param synapse_token A synapse PAT with download priveledges.
-get_project_manifest_list_from_project_id <- function(
+get_project_manifest_list <- function(
     project_id,
     fileview_id,
     synapse_token
-){
+) {
   manifest_attempt <- try(get_project_manifests(
     project_id,
     fileview_id,
@@ -77,11 +77,11 @@ get_project_manifest_list_from_project_id <- function(
   ))
 
   error_occured <- any(
-    class(manifest_attempt) == 'try-error',
+    class(manifest_attempt) == "try-error",
     typeof(manifest_attempt[[1]]) == "externalptr"
   )
 
-  if(error_occured){
+  if (error_occured) {
     stop(
       "API error: project_id: ",
       project_id,
@@ -108,7 +108,7 @@ get_project_manifests <- function(
     fileview_id,
     synapse_token,
     url = "http://localhost:3001/v1/storage/project/manifests"
-){
+) {
   request <- httr::GET(
     url,
     query = list(
@@ -120,5 +120,3 @@ get_project_manifests <- function(
 
   httr::content(request, as = "parsed")
 }
-
-

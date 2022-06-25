@@ -1,4 +1,4 @@
-#' Create Manifest Table From List
+#' Create Manifest Table
 #'
 #' @param project_manifest_list A nested list in this form:
 #'list(
@@ -28,12 +28,14 @@
 #'   )
 #' )
 #' @param synapse_object An object created by create_syn_obj()
-create_manifest_table_from_list <- function(project_manifest_list, synapse_object){
-  table <- create_intermediate_manifest_table(
+create_manifest_table <- function(
+    project_manifest_list, synapse_object
+) {
+  table <- create_int_manifest_table(
     project_manifest_list, synapse_object
   )
   return(list(
-    "table" = create_manifest_table(table),
+    "table" = add_manifest_tbl_column(table),
     "errors" = create_synapse_error_list(table)
   ))
 }
@@ -68,10 +70,11 @@ create_manifest_table_from_list <- function(project_manifest_list, synapse_objec
 #'   )
 #' )
 #' @param synapse_object An object created by create_syn_obj()
-create_intermediate_manifest_table <- function(
+#' @importFrom rlang .data
+create_int_manifest_table <- function(
     project_manifest_list,
     synapse_object
-){
+) {
   project_manifest_list %>%
     purrr::flatten() %>%
     purrr::map(create_manifest_table_row) %>%
@@ -94,7 +97,7 @@ create_intermediate_manifest_table <- function(
 #'   list("Component1", "Component1")
 #' )
 #'
-create_manifest_table_row <- function(manifest){
+create_manifest_table_row <- function(manifest) {
   row <-
     dplyr::tibble(
       "dataset_name"    = manifest[[1]][[2]],
@@ -107,6 +110,7 @@ create_manifest_table_row <- function(manifest){
       dplyr::everything(),
       ~dplyr::if_else(.x == "", NA_character_, .x)
     ))
+  return(row)
 }
 
 #' Add Manifest Entity Column
@@ -117,7 +121,8 @@ create_manifest_table_row <- function(manifest){
 #' @param table A dataframe with column "manifest_id" that contains synapse
 #' file ids for manifests.
 #' @param synapse_object object returned by create_synapse_login().
-add_manifest_entity_column <- function(table, synapse_object){
+#' @importFrom rlang .data
+add_manifest_entity_column <- function(table, synapse_object) {
   dplyr::mutate(
     table,
     "manifest_entity" = map_synapse_get_entities(
@@ -134,7 +139,8 @@ add_manifest_entity_column <- function(table, synapse_object){
 #'
 #' @param table A dataframe with column "manifest_entity" that contains manifest
 #' synapse file entities.
-add_manifest_path_column <- function(table){
+#' @importFrom rlang .data
+add_manifest_path_column <- function(table) {
   dplyr::mutate(
     table,
     "manifest_path" = purrr::map_chr(
@@ -149,18 +155,19 @@ add_manifest_path_column <- function(table){
 #' Gets the path form a Synpase File entity, or returns NA.
 #'
 #' @param entity A Synsape File entity.
-get_path_from_synapse_entity <- function(entity){
-  if(is.null(entity$path)) return(NA_character_)
+get_path_from_synapse_entity <- function(entity) {
+  if (is.null(entity$path)) return(NA_character_)
   else return(entity$path)
 }
 
-#' Create Manifest Table
+#' Add Manifest Table Column
 #'
 #' Returns a table with the manifest table as a column
 #'
 #' @param table A dataframe with columns "manifest_path", "manifest_id" and
 #' "manifest_entity"
-create_manifest_table <- function(table){
+#' @importFrom rlang .data
+add_manifest_tbl_column <- function(table) {
   table %>%
     dplyr::filter(!is.na(.data$manifest_path)) %>%
     dplyr::mutate("manifest_tbl" = purrr::map(
@@ -177,11 +184,12 @@ create_manifest_table <- function(table){
 #'
 #' @param table A dataframe with columns "manifest_path", "manifest_id" and
 #' "manifest_entity"
-create_synapse_error_list <- function(table){
+#' @importFrom rlang .data
+create_synapse_error_list <- function(table) {
   lst <- table %>%
     dplyr::filter(is.na(.data$manifest_path)) %>%
     dplyr::select("manifest_id", "manifest_entity") %>%
     tibble::deframe()
-  if(length(lst) == 0) return(NULL)
+  if (length(lst) == 0) return(NULL)
   else return(lst)
 }

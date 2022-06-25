@@ -20,7 +20,9 @@ Suggests:
     devtools,
     usethis,
     mockery,
-    lubridate
+    lubridate,
+    lintr,
+    yaml
 Config/testthat/edition: 3
 Imports: 
     dplyr,
@@ -29,5 +31,6 @@ Imports:
     purrr,
     readr,
     reticulate,
+    rlang,
     stringr,
     tibble

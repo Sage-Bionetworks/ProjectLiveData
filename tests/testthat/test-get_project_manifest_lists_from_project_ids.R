@@ -19,20 +19,20 @@ manifest3 <- list(
 project_manifest_list1 <- list(manifest1, manifest2, manifest3)
 project_manifest_list2 <- list(manifest1, manifest2)
 
-test_that("get_project_manifest_list_from_project_ids", {
+test_that("get_project_manifest_lists", {
   mockery::stub(
-    where = get_project_manifest_list_from_project_ids,
-    what = "map_get_project_manifest_list_from_project_ids",
+    where = get_project_manifest_lists,
+    what = "map_get_project_manifest_list",
     how = list(
       "syn10" = project_manifest_list1,
       "syn11" = project_manifest_list1,
-      "syn12" = try(stop(), silent = T),
-      "syn13" = try(stop(), silent = T)
+      "syn12" = try(stop(), silent = TRUE),
+      "syn13" = try(stop(), silent = TRUE)
     )
   )
 
   expect_equal(
-    get_project_manifest_list_from_project_ids(
+    get_project_manifest_lists(
       c("syn10", "syn11", "syn12", "syn13"), "syn2", "token"
     ),
     list(
@@ -41,15 +41,15 @@ test_that("get_project_manifest_list_from_project_ids", {
         "syn11" = project_manifest_list1
       ),
       "errors" = list(
-        "syn12" = try(stop(), silent = T),
-        "syn13" = try(stop(), silent = T)
+        "syn12" = try(stop(), silent = TRUE),
+        "syn13" = try(stop(), silent = TRUE)
       )
     )
   )
 
   mockery::stub(
-    where = get_project_manifest_list_from_project_ids,
-    what = "map_get_project_manifest_list_from_project_ids",
+    where = get_project_manifest_lists,
+    what = "map_get_project_manifest_list",
     how = list(
       "syn10" = project_manifest_list1,
       "syn11" = project_manifest_list1
@@ -57,7 +57,7 @@ test_that("get_project_manifest_list_from_project_ids", {
   )
 
   expect_equal(
-    get_project_manifest_list_from_project_ids(
+    get_project_manifest_lists(
       c("syn10", "syn11"), "syn2", "token"
     ),
     list(
@@ -71,15 +71,15 @@ test_that("get_project_manifest_list_from_project_ids", {
 })
 
 
-test_that("map_get_project_manifest_list_from_project_ids", {
+test_that("map_get_project_manifest_list", {
   mockery::stub(
-    where = map_get_project_manifest_list_from_project_ids,
-    what = "get_project_manifest_list_from_project_id",
+    where = map_get_project_manifest_list,
+    what = "get_project_manifest_list",
     how = project_manifest_list1
   )
 
   expect_equal(
-    map_get_project_manifest_list_from_project_ids(
+    map_get_project_manifest_list(
       c("syn10", "syn11"), "syn2", "token"
     ),
     list(
@@ -89,44 +89,44 @@ test_that("map_get_project_manifest_list_from_project_ids", {
   )
 
   mockery::stub(
-    where = map_get_project_manifest_list_from_project_ids,
-    what = "get_project_manifest_list_from_project_id",
-    how = try(stop(), silent = T)
+    where = map_get_project_manifest_list,
+    what = "get_project_manifest_list",
+    how = try(stop(), silent = TRUE)
   )
 
   expect_equal(
-    map_get_project_manifest_list_from_project_ids(
+    map_get_project_manifest_list(
       c("syn10", "syn11"), "syn2", "token"
     ),
     list(
-      "syn10" = try(stop(), silent = T),
-      "syn11" = try(stop(), silent = T)
+      "syn10" = try(stop(), silent = TRUE),
+      "syn11" = try(stop(), silent = TRUE)
     )
   )
 })
 
 
 
-test_that("get_project_manifest_list_from_project_id", {
+test_that("get_project_manifest_list", {
   mockery::stub(
-    where = get_project_manifest_list_from_project_id,
+    where = get_project_manifest_list,
     what = "get_project_manifests",
     how = project_manifest_list1
   )
 
   expect_equal(
-    get_project_manifest_list_from_project_id("syn1", "syn2", "token"),
+    get_project_manifest_list("syn1", "syn2", "token"),
     project_manifest_list1
   )
 
   mockery::stub(
-    where = get_project_manifest_list_from_project_id,
+    where = get_project_manifest_list,
     what = "get_project_manifests",
-    how = try(stop(), silent = T)
+    how = try(stop(), silent = TRUE)
   )
 
   expect_error(
-    get_project_manifest_list_from_project_id("syn1", "syn2", "token"),
+    get_project_manifest_list("syn1", "syn2", "token"),
     "API error: project_id: syn1, fileview_id: syn2"
   )
 })
