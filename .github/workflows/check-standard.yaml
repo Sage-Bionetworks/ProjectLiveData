@@ -50,6 +50,14 @@ jobs:
           Rscript -e "reticulate::py_discover_config()"
           Rscript -e "reticulate::py_install(c('pandas', 'numpy', 'boto3', 'synapseclient'), pip = TRUE)"
 
+      - name: Create config
+        run: |
+          yaml::write_yaml(
+            x = list("auth_token" = "${{secrets.SYNAPSE_AUTH_TOKEN}}"),
+            file = "inst/config.yml"
+          )
+        shell: Rscript {0}
+
       - uses: r-lib/actions/check-r-package@v2
         with:
           upload-snapshots: true
