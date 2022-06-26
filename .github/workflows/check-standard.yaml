@@ -44,6 +44,12 @@ jobs:
           extra-packages: any::rcmdcheck
           needs: check
 
+      - name: Install Miniconda and python packages
+        run: |
+          Rscript -e "reticulate::install_miniconda()"
+          Rscript -e "reticulate::py_discover_config()"
+          Rscript -e "reticulate::py_install(c('pandas', 'numpy', 'boto3', 'synapseclient'), pip = TRUE)"
+
       - uses: r-lib/actions/check-r-package@v2
         with:
           upload-snapshots: true
