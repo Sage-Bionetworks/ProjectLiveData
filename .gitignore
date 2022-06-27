@@ -2,6 +2,7 @@
 .Rhistory
 .RData
 .Ruserdata
-config.yaml
 *.RDS
 inst/*.RDS
+tests/testthat/*.RDS
+tests/testthat/configs/config.yaml
