@@ -26,6 +26,7 @@ jobs:
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      SYNAPSE_AUTH_TOKEN: ${{secrets.SYNAPSE_AUTH_TOKEN}}
       R_KEEP_PKG_SOURCE: yes
 
     steps:
@@ -53,8 +54,8 @@ jobs:
       - name: Create config
         run: |
           yaml::write_yaml(
-            x = list("auth_token" = "${{secrets.SYNAPSE_AUTH_TOKEN}}"),
-            file = "inst/config.yml"
+            x = list("auth_token" = "${{env.SYNAPSE_AUTH_TOKEN}}"),
+            file = "config.yml"
           )
         shell: Rscript {0}
 

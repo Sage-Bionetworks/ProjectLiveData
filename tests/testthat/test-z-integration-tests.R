@@ -1,3 +1,6 @@
+print(list.files())
+print(Sys.getenv())
+
 config <- yaml::read_yaml(
   system.file("config.yaml", package = "ProjectLiveData")
 )
